@@ -1,0 +1,53 @@
+
+Write your notes in this file.
+
+Flask
+Does not contain user management 
+Database connectivity - No MVC by Default 
+LightWeight
+
+Django 
+Pre-Built WebApp Framework 
+Model View Controller Architecture setup simply from "django-admin startproject myDjangoSite"
+mysite/
+    manage.py
+    mysite/
+        __init__.py
+        settings.py
+        urls.py
+        asgi.py
+        wsgi.py
+
+Where as with flask, nothing is really created. 
+We create the pages from scratch
+
+
+
+if __name__ == "__main__":
+https://docs.python.org/3/reference/toplevel_components.html#complete-python-programs 
+https://docs.python.org/3/reference/import.html?highlight=__name__#__name__
+
+In a brief nutshell it is a requirement in order to kick start the python compiler, establish required resources
+and recognize that a program is being requested to run.
+
+
+You typically see this at the bottom and the actual functions and methods above. 
+This is because methods and functions must be defined before they are run. 
+
+If you find this at the top of the code then it will execute immediatly without your methods being defined and established
+
+Example from our S3 Flask App
+@app.route("/download/<filename>", methods=['GET'])
+def download(filename):
+    if request.method == 'GET':
+        output = download_file(filename, BUCKET)
+
+        return send_file(output, as_attachment=True)
+
+
+if __name__ == '__main__':
+     app.run(host='0.0.0.0', port=8080, debug=True)
+
+
+If main was run before def download, the application would have no recognition of def download. 
+So similarly to variables being instantiated before execution or implementation into methods and functions

@@ -1,0 +1,57 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Signin to Safe-Info{% endblock %}
+
+{% block content %}
+<style>
+    .form-confirmSignUp {
+        width: 100%;
+        max-width: 330px;
+        padding: 15px;
+        margin: auto;
+    }
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+    }
+    
+    @media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+      font-size: 3.5rem;
+    }
+    }
+</style>
+
+    
+    <!-- Custom styles for this template -->
+    <link href="/static/css/signin.css" rel="stylesheet">
+  </head>
+  <body class="text-center">
+    
+<main class="form-confirmSignUp">
+  <form action="/confirmSignUpForm" method="POST">
+    <h1 class="h3 mb-3 fw-normal">Please confirm Sign Up</h1>
+    </br>
+    <div class="form-floating">
+        <label for="floatingInput">Email address</label>
+        <input type="email" name="username" class="form-control" id="floatingInput" placeholder="name@example.com">
+    </div>
+    <div class="form-floating">
+        <label for="floatingPassword">Confirmation code</label>
+        <input type="confirm_codev" name="confirm_code" class="form-control" id="floatingPassword" placeholder="Confirmation code">
+      
+    </div>
+</br>
+    <button class="w-100 btn btn-lg btn-primary" type="submit">Confirm</button>
+    <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
+</br>
+  </form>
+
+
+</main>
+
+
+{% endblock %}s
