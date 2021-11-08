@@ -1,0 +1,67 @@
+
+{% extends "topBar.html" %}
+
+{% block title %}Sign-in to Safe-Info{% endblock %}
+
+{% block content %}
+    <style>
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+    </head>
+    <body class="text-center">
+
+
+
+    <main class="form-signin">
+
+        <form action="/signinForm" method="POST">
+            <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+            </br>
+
+            <div class="form-floating">
+                <label for="floatingInput">Email address</label>
+                <input type="email" name="username" class="form-control" id="floatingInput" placeholder="name@example.com">
+            </div>
+            <div class="form-floating">
+                <label for="floatingPassword">Password</label>
+                <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password">
+            </div>
+
+            <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                </label>
+            </div>
+            </br>
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+            </br>
+            <p class="mt-5 mb-3 text-muted"></p>
+        </form>
+
+    </main>
+
+    <footer class="text-center text-white fixed-bottom" style="">
+        <!-- Grid container -->
+        <div class="container p-3"></div>
+        <!-- Grid container -->
+
+        <!-- Copyright -->
+        <div class="text-center text-muted p-3">
+            © 2021 Copyright:
+            <a class="text-white" href="https://safe-infos.com/">safe-infos.com</a>
+        </div>
+        <!-- Copyright -->
+    </footer>
+{% endblock %}s

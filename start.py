@@ -25,7 +25,7 @@ def signup():
 
 
 @app.route("/signupForm", methods=['POST'])
-def signupForm():
+def signup_form():
     # gets username and password from the form
     username = request.form['username']
     password = request.form['password']
@@ -59,6 +59,34 @@ def confirm_signup_form():
         ConfirmationCode=confirm_code
     )
     return render_template("index.html")
+
+
+@app.route("/signin")
+def signin():
+    return render_template("signin.html")
+
+
+@app.route("/signinForm", methods=['POST'])
+def signin_form():
+    # gets username and password from the form
+    username = request.form['username']
+    password = request.form['password']
+
+    client = boto3.client("cognito-idp", region_name="us-east-1")
+
+    # sign-in on Cognito
+    response = client.sign_in(
+        ClientId=os.getenv("COGNITO_USER_CLIENT_ID"),
+        Username=username,
+        Password=password,
+        UserAttributes=[{"Name": "email", "Value": username}],
+    )
+    return render_template("index.html")
+
+
+@app.route("/logged")
+def logged():
+    return render_template("home.html")
 
 
 # redirect to the home page when reaching admin endpoint

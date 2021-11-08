@@ -5,6 +5,9 @@
             width: 90%;
             margin: auto;
         }
+        .navbar a {
+            padding-top: 5px;
+        }
         @media (min-width: 768px) {
             .bd-placeholder-img-lg {
                 font-size: 3.5rem;
@@ -20,12 +23,26 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Brand</a>
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" width="40" height="40" src="../static/img/safe-infos.png">
+                </a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-3">
-                <button type="button" class="btn btn-default navbar-btn navbar-right">Sign in</button>
+                <a class="btn btn-default navbar-btn navbar-right" href="/signin" role="button">Sign in</a>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Actions <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/confirmSignUp">Sign-up</a></li>
+                            <li><a href="/confirmSignUp">Confirm sign-up</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/">Home</a></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
+
         </div>
     </nav>
 
-{% endblock %}s
+{% endblock %}
