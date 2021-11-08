@@ -81,7 +81,7 @@ def signin_form():
         Password=password,
         UserAttributes=[{"Name": "email", "Value": username}],
     )
-    return render_template("index.html")
+    return render_template("logged.html")
 
 
 @app.route("/logged")
