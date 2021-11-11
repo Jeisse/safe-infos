@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e9ec770d-d482-476d-8ab7-536844eb5708" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/static/js/treeview.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/signin.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/start.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/topBar.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/topBar.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/confirmationCodeEmail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -111,7 +107,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1636396349642</updated>
-      <workItem from="1636396353698" duration="11089000" />
+      <workItem from="1636396353698" duration="12798000" />
+      <workItem from="1636554826887" duration="2762000" />
     </task>
     <servers />
   </component>
@@ -123,7 +120,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
