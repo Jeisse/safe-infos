@@ -74,14 +74,21 @@ def signin_form():
 
     client = boto3.client("cognito-idp", region_name="us-east-1")
 
-    # sign-in on Cognito
-    response = client.sign_in(
+    # Initiating the Authentication
+    # USER_PASSWORD_AUTH needs to be configured on Cognito (General Settings > App Client > Auth Flow Configuration)
+    response = client.initiate_auth(
         ClientId=os.getenv("COGNITO_USER_CLIENT_ID"),
-        Username=username,
-        Password=password,
-        UserAttributes=[{"Name": "email", "Value": username}],
+        AuthFlow="USER_PASSWORD_AUTH",
+        AuthParameters={"USERNAME": username, "PASSWORD": password},
     )
-    return render_template("logged.html")
+
+    # Getting the user AccessToken details from the JSON response
+    access_token = response["AuthenticationResult"]["AccessToken"]
+    
+    response = client.get_user(AccessToken=access_token)
+    print(response)
+    
+    return render_template("home.html")
 
 
 @app.route("/logged")
