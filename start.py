@@ -1,5 +1,8 @@
 import os
 import boto3
+
+import dynamoDB
+import document
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, redirect, url_for, render_template, json, request
 from flask_bootstrap import Bootstrap
@@ -11,6 +14,11 @@ load_dotenv(find_dotenv())
 # read the .env-sample, to load the environment variable.
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env-sample")
 load_dotenv(dotenv_path)
+
+# create database tables if does not exists
+def initialize_database():
+    doc = document.Document("test1","notes here", "description")
+    dynamoDB.initiate_db(doc)
 
 
 @app.route("/")
@@ -26,6 +34,7 @@ def signup():
 
 @app.route("/signupForm", methods=['POST'])
 def signup_form():
+    
     # gets username and password from the form
     username = request.form['username']
     password = request.form['password']
@@ -94,6 +103,19 @@ def signin_form():
 @app.route("/logged")
 def logged():
     return render_template("home.html")
+
+@app.route("/newFile")
+def newFile():
+    doc = document.Document("test1","notes here", "description2")
+    dynamoDB.initiate_db(doc)
+    
+    item = {
+        "name": "first doc",
+        "type": "text",
+        "testField1": "testField1"
+    }
+    dynamoDB.add_item("document", item)
+    return render_template("doc.html")
 
 
 # redirect to the home page when reaching admin endpoint
