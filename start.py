@@ -106,15 +106,16 @@ def logged():
 
 @app.route("/newFile")
 def newFile():
-    doc = document.Document("test1","notes here", "description2")
-    dynamoDB.initiate_db(doc)
+    doc = document.Document("test-Jeisse4","notes here 4", "description4")
+    # dynamoDB.initiate_db(doc)
     
     item = {
-        "name": "first doc",
-        "type": "text",
-        "testField1": "testField1"
+        "name": "test-Jeisse4",
+        "fileType": doc.fileType,
+        "description": doc.description,
+        "notes": doc.notes
     }
-    dynamoDB.add_item("document", item)
+    dynamoDB.add_item("document2", item)
     return render_template("doc.html")
 
 

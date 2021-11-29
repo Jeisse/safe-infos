@@ -4,8 +4,8 @@ import fileType
 class Document(object.Object):
     table_name = "document2"
     attribute_key = ["name", "fileType"]
-    name = '' 
     fileType = fileType.FileType.text
+    name = '' 
     description = ''
     notes = ''
 
