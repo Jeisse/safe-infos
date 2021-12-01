@@ -14,11 +14,6 @@ load_dotenv(find_dotenv())
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env-sample")
 load_dotenv(dotenv_path)
 
-# create database tables if does not exists
-def initialize_database():
-    doc = document.Document("test1","notes here", "description")
-    dynamoDB.initiate_db(doc)
-
 
 @app.route("/")
 def home():
@@ -102,19 +97,31 @@ def signin_form():
 @app.route("/logged")
 def logged():
     return render_template("home.html")
-
-@app.route("/newFile")
-def newFile():
-    doc = document.Document("test-Jeisse4","notes here 4", "description4")
-    # dynamoDB.initiate_db(doc)
     
+@app.route("/newFile")
+def new_file():
+    return render_template("newFile.html")    
+
+@app.route("/fileForm", methods=['POST'])
+def newFile():
+    
+    title = request.form['docTitle']
+    password = request.form["docPassword"]
+    description = request.form["docDescription"]
+    notes = request.form["docNotes"]
+    
+    doc = document.Document(title, password, description, notes)
+    # for the first time so the DB is created
+#   dynamoDB.initiate_db(doc)
+    
+# "test-Jeisse-011220211013"
     item = {
-        "name": "test-Jeisse4",
+        "name": str(doc.title),
         "fileType": doc.fileType,
         "description": doc.description,
         "notes": doc.notes
     }
-    dynamoDB.add_item("document2", item)
+    dynamoDB.add_item(doc.table_name, item)
     return render_template("doc.html")
 
 

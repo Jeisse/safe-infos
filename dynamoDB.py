@@ -83,7 +83,7 @@ def initiate_db(objectDB : object):
     print(key_schema)
     
     provisioned_throughput={
-        "ReadCapacityUnits": 1,
+        "ReadCapacityUnits": 100,
         "WriteCapacityUnits": 1
     }
     
