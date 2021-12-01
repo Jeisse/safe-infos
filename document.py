@@ -9,8 +9,9 @@ class Document(object.Object):
     password = ''
     description = ''
     notes = ''
+    
 
-    def __init__(self, title, password, description, notes):
+    def __init__(self, title="", password="", description="", notes=""):
         self.title = title,
         self.password = password,
         self.description = description,

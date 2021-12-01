@@ -114,16 +114,29 @@ def newFile():
     # for the first time so the DB is created
 #   dynamoDB.initiate_db(doc)
     
-# "test-Jeisse-011220211013"
+# "test-Jeisse-011220211013" // name = User ID
     item = {
-        "name": str(doc.title),
+        "name": "test-Jeisse-011220211014",
         "fileType": doc.fileType,
         "description": doc.description,
         "notes": doc.notes
     }
     dynamoDB.add_item(doc.table_name, item)
-    return render_template("doc.html")
+    return redirect(url_for("docList"))
 
+@app.route("/docList", methods=['GET', 'POST'])
+def docList(): 
+    doc = document.Document() 
+    key_info={
+        "name": "test-Jeisse-011220211013",
+        "fileType": "text"
+    }
+    items = dynamoDB.get_item(doc.table_name, key_info)
+    print(items['fileType'])
+    
+    # return render_template("doc.html") 
+    return render_template('doc.html')
+    # return redirect(url_for("doc.html", items= items))
 
 # redirect to the home page when reaching admin endpoint
 # Both redirect and url_for must be import above before recognized by compiler

@@ -35,8 +35,6 @@ class DynamoDB:
             logging.error(e)
             return False
         return True
-        
-        
      
     def get_an_item(self,region, table_name, key):
         try:
@@ -45,6 +43,7 @@ class DynamoDB:
             response = table.get_item(Key=key)
             item = response['Item']
             print(item)
+            return item
         
         except ClientError as e:
             logging.error(e)
@@ -99,7 +98,9 @@ def add_item(table_name, item):
     
 def get_item(table_name, key_info):
     d = DynamoDB()
-    d.get_an_item(util.Utils.region, table_name, key_info)
+    item = d.get_an_item(util.Utils.region, table_name, key_info)
+    return item
+    
     
 
 
