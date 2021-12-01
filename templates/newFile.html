@@ -1,0 +1,86 @@
+{% extends "topBar.html" %}
+
+{% block title %}Home page to Safe-Info{% endblock %}
+
+{% block content %}
+    <script src="../static/js/treeview.js"></script>
+    <style>
+        .jumbotron {
+            width: 90%;
+            margin: auto;
+            margin-top: 30px;
+        }
+        .main {
+            width: 90%;
+            margin: auto;
+            margin-top: 30px;
+        }
+        .central {
+            background-color: #f7f7f9;
+        }
+        .sidebar {
+            z-index: 1000;
+            display: block;
+            padding: 20px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            border-right: 5px solid #ffffff;
+        }
+    </style>
+
+    <main class="text-center main">
+        <div class="page-header">
+            <h1>Safe-infos <small>New Form</small></h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 sidebar">
+
+                <div class="treeview w-20 border">
+                    <h6 class="pt-3 pl-3">Folders</h6>
+                    <hr>
+                  
+                </div><div class="treeview w-20 border">
+                <h6 class="pt-3 pl-3">Folders</h6>
+                <hr>
+               
+            </div><div class="treeview w-20 border">
+                <h6 class="pt-3 pl-3">Folders</h6>
+                <hr>
+                
+            </div>
+
+            </div>
+            <div class="col-md-9 central">
+               
+                <div class="row">
+                    <form action="/fileForm" method="POST">
+                        <div class="form-group col-md-8">
+                            <label for="docTitle">Title*</label>
+                            <input type="text" class="form-control" id="docTitle" name="docTitle" placeholder="Any title, something to identify this file">
+                        </div>
+                        <div class="form-group col-md-8">
+                            <label for="docPassword">Password</label>
+                            <input type="password" class="form-control col-md-6" id="docPassword" name="docPassword" placeholder="Password">
+                        </div>
+                        <div class="form-group col-md-8">
+                            <label for="docDescription">Description</label>
+                            <input type="text" class="form-control col-md-6" id="docDescription" name="docDescription">
+                        </div>
+                    
+                        <div class="form-group col-md-9">
+                            <label for="docNotes">Notes</label>
+                            <textarea class="form-control col-md-9" id="docNotes" rows="4" name="docNotes"></textarea>
+                            
+                            <br>
+                            <button class="w-100 btn btn-lg btn-primary pull-left" type="submit">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+{% endblock %}
