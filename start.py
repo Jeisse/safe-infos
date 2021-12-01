@@ -1,6 +1,5 @@
 import os
 import boto3
-
 import dynamoDB
 import document
 from dotenv import load_dotenv, find_dotenv
