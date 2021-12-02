@@ -2,6 +2,7 @@ import os
 import boto3
 import dynamoDB
 import document
+import json
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, redirect, url_for, render_template, json, request
 from flask_bootstrap import Bootstrap
@@ -28,7 +29,7 @@ def signup():
 
 @app.route("/signupForm", methods=['POST'])
 def signup_form():
-    
+  
     # gets username and password from the form
     username = request.form['username']
     password = request.form['password']
@@ -71,6 +72,7 @@ def signin():
 
 @app.route("/signinForm", methods=['POST'])
 def signin_form():
+
     # gets username and password from the form
     username = request.form['username']
     password = request.form['password']
@@ -105,44 +107,73 @@ def new_file():
 @app.route("/fileForm", methods=['POST'])
 def newFile():
     
-    title = request.form['docTitle']
+    title = request.form["docTitle"]
     password = request.form["docPassword"]
     description = request.form["docDescription"]
     notes = request.form["docNotes"]
     
-    doc = document.Document(title, password, description, notes)
+    #should be user logged
+    name = "test-Jeisse-011220211013"
+    
+    doc = document.Document(name, title, password, description, notes)
     # for the first time so the DB is created
 #   dynamoDB.initiate_db(doc)
     
-# "test-Jeisse-011220211013" // name = User ID
+    # get existing items to not be override when include new
+    existingItems = get_doc(doc)
+    
+    test = []
+    if existingItems != [] :
+        for i in existingItems['description']:
+            test.append({
+                'title': i['title'],
+                'password': i['password'],
+                'description': i['description'],
+                'notes': i['notes']
+            })
+    
+    test.append({
+        'title': title,
+        'password': password,
+        'description': description,
+        'notes': notes
+        })  
+    print(test)    
+
     item = {
-        "name": "test-Jeisse-011220211014",
+        "name": "test-Jeisse-011220211013",
         "fileType": doc.fileType,
-        "description": doc.description,
-        "notes": doc.notes
+        "description": test
     }
     dynamoDB.add_item(doc.table_name, item)
     return redirect(url_for("docList"))
 
+
 @app.route("/docList", methods=['GET', 'POST'])
 def docList(): 
-    doc = document.Document() 
-    key_info={
-        "name": "test-Jeisse-011220211013",
-        "fileType": "text"
-    }
-    items = dynamoDB.get_item(doc.table_name, key_info)
-    print(items['fileType'])
+    doc = document.Document("test-Jeisse-011220211013") 
+    items = get_doc(doc)
+    my_json = json.dumps(items)
+   
     
-    # return render_template("doc.html") 
-    return render_template('doc.html')
-    # return redirect(url_for("doc.html", items= items))
+    
+    return render_template('doc.html', items=items["description"]) 
 
 # redirect to the home page when reaching admin endpoint
 # Both redirect and url_for must be import above before recognized by compiler
 @app.route("/admin/")
 def admin():
     return redirect(url_for("user", name="admin!"))
+
+
+def get_doc(doc):
+    key_info={
+        "name": doc.name,
+        "fileType": doc.fileType
+    }
+    items = dynamoDB.get_item(doc.table_name, key_info)
+    return items
+
 
 
 # We need to state this below due to our C9 Env
