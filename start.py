@@ -198,6 +198,10 @@ def decrypt(key, item):
     # display the plaintext and the decode() method, converts it from byte to string
     return decrypted.decode()
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
 # We need to state this below due to our C9 Env
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080, debug=True)
