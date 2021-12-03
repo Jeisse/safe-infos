@@ -6,6 +6,7 @@ import json
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, redirect, url_for, render_template, json, request
 from flask_bootstrap import Bootstrap
+from cryptography.fernet import Fernet
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -122,28 +123,33 @@ def newFile():
     # get existing items to not be override when include new
     existingItems = get_doc(doc)
     
-    test = []
+    items = []
+    key = ""
     if existingItems != [] :
         for i in existingItems['description']:
-            test.append({
+            key = i['key'].value
+            items.append({
                 'title': i['title'],
                 'password': i['password'],
                 'description': i['description'],
-                'notes': i['notes']
+                'notes': i['notes'],
+                'key': i['key']
             })
+    else:        
+        key = Fernet.generate_key()
     
-    test.append({
-        'title': title,
-        'password': password,
-        'description': description,
-        'notes': notes
+    items.append({
+        'title': encryptation(key, title),
+        'password': encryptation(key, password),
+        'description': encryptation(key, description),
+        'notes': encryptation(key, notes),
+        'key': key
         })  
-    print(test)    
 
     item = {
         "name": "test-Jeisse-011220211013",
         "fileType": doc.fileType,
-        "description": test
+        "description": items
     }
     dynamoDB.add_item(doc.table_name, item)
     return redirect(url_for("docList"))
@@ -153,11 +159,16 @@ def newFile():
 def docList(): 
     doc = document.Document("test-Jeisse-011220211013") 
     items = get_doc(doc)
-    my_json = json.dumps(items)
-   
+    decodedItems = []
+    for i in items["description"]:
+        key = i["key"]
+        decodedItems.append({
+            "title": decrypt(key.value, i["title"]),
+            "description": decrypt(key.value, i["description"]),
+            "notes": decrypt(key.value, i["notes"])
+            })
     
-    
-    return render_template('doc.html', items=items["description"]) 
+    return render_template('doc.html', items=decodedItems) 
 
 # redirect to the home page when reaching admin endpoint
 # Both redirect and url_for must be import above before recognized by compiler
@@ -174,7 +185,18 @@ def get_doc(doc):
     items = dynamoDB.get_item(doc.table_name, key_info)
     return items
 
-
+def encryptation(key, item):
+    f = Fernet(key)
+    encrypted = f.encrypt( item.encode())
+    return encrypted
+    
+def decrypt(key, item):
+    f = Fernet(key)
+    print(item.value)
+    # encrypted = b"...encrypted bytes..."
+    decrypted = f.decrypt(item.value)
+    # display the plaintext and the decode() method, converts it from byte to string
+    return decrypted.decode()
 
 # We need to state this below due to our C9 Env
 if __name__ == "__main__":

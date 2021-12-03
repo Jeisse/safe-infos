@@ -42,7 +42,7 @@ class DynamoDB:
             table = dynamodb_resource.Table(table_name)
             response = table.get_item(Key=key)
             item = response['Item']
-            print(item)
+            # print(item)
             return item
         
         except ClientError as e:
