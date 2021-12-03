@@ -3,6 +3,7 @@ import boto3
 import dynamoDB
 import document
 import json
+import user
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, redirect, url_for, render_template, json, request
 from flask_bootstrap import Bootstrap
@@ -22,11 +23,9 @@ def home():
     # return the home page
     return render_template("index.html")
 
-
 @app.route("/signup")
 def signup():
     return render_template("signup.html")
-
 
 @app.route("/signupForm", methods=['POST'])
 def signup_form():
@@ -92,12 +91,13 @@ def signin_form():
     access_token = response["AuthenticationResult"]["AccessToken"]
     
     response = client.get_user(AccessToken=access_token)
-    print(response)
     
+    # userLogged = user.User(response["Username"], response["UserAttributes"][0]["Value"])
+    # return redirect(url_for("logged", user=userLogged))
     return render_template("home.html")
 
 
-@app.route("/logged")
+@app.route("/logged", methods=['POST', 'GET'])
 def logged():
     return render_template("home.html")
     
@@ -115,7 +115,6 @@ def newFile():
     
     #should be user logged
     name = "test-Jeisse-011220211013"
-    
     doc = document.Document(name, title, password, description, notes)
     # for the first time so the DB is created
 #   dynamoDB.initiate_db(doc)
@@ -146,8 +145,9 @@ def newFile():
         'key': key
         })  
 
+    
     item = {
-        "name": "test-Jeisse-011220211013",
+        "name": name,
         "fileType": doc.fileType,
         "description": items
     }
