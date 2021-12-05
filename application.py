@@ -5,7 +5,7 @@ import document
 import json
 import user
 from dotenv import load_dotenv, find_dotenv
-from flask import Flask, redirect, url_for, render_template, json, request
+from flask import Flask, redirect, url_for, render_template, json, request, session
 from flask_bootstrap import Bootstrap
 from cryptography.fernet import Fernet
 
@@ -16,6 +16,7 @@ load_dotenv(find_dotenv())
 # read the .env-sample, to load the environment variable.
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env-sample")
 load_dotenv(dotenv_path)
+application.secret_key = os.getenv('APP_KEY')
 
 
 @application.route("/")
@@ -91,15 +92,19 @@ def signin_form():
     access_token = response["AuthenticationResult"]["AccessToken"]
     
     response = client.get_user(AccessToken=access_token)
+    print(response)
+    # Assign current user to session
+    session['username'] = response["Username"]
     
-    # userLogged = user.User(response["Username"], response["UserAttributes"][0]["Value"])
-    # return redirect(url_for("logged", user=userLogged))
-    return render_template("home.html")
+    return redirect(url_for('logged'))
 
 
 @application.route("/logged", methods=['POST', 'GET'])
 def logged():
-    return render_template("home.html")
+    if session['username'] :
+        return render_template("home.html")
+        
+    return  render_template("index.html")
     
 @application.route("/newFile")
 def new_file():
@@ -114,13 +119,13 @@ def newFile():
     notes = request.form["docNotes"]
     
     #should be user logged
-    name = "test-Jeisse-011220211013"
+    name = session['username']+"_file"
     doc = document.Document(name, title, password, description, notes)
     # for the first time so the DB is created
 #   dynamoDB.initiate_db(doc)
     
     # get existing items to not be override when include new
-    existingItems = get_doc(doc)
+    existingItems = document.get_doc(doc)
     
     items = []
     key = ""
@@ -157,8 +162,8 @@ def newFile():
 
 @application.route("/docList", methods=['GET', 'POST'])
 def docList(): 
-    doc = document.Document("test-Jeisse-011220211013") 
-    items = get_doc(doc)
+    doc = document.Document(session["username"]+"_file") 
+    items = document.get_doc(doc)
     decodedItems = []
     for i in items["description"]:
         key = i["key"]
@@ -170,20 +175,18 @@ def docList():
     
     return render_template('doc.html', items=decodedItems) 
 
+@application.route('/logout')
+def logout():
+   # remove the username from the session
+   session.pop('username', None)
+   return render_template("index.html")
+
+
 # redirect to the home page when reaching admin endpoint
-# Both redirect and url_for must be import above before recognized by compiler
 @application.route("/admin/")
 def admin():
     return redirect(url_for("user", name="admin!"))
 
-
-def get_doc(doc):
-    key_info={
-        "name": doc.name,
-        "fileType": doc.fileType
-    }
-    items = dynamoDB.get_item(doc.table_name, key_info)
-    return items
 
 def encryptation(key, item):
     f = Fernet(key)
@@ -197,6 +200,7 @@ def decrypt(key, item):
     decrypted = f.decrypt(item.value)
     # display the plaintext and the decode() method, converts it from byte to string
     return decrypted.decode()
+
 
 @application.errorhandler(404)
 def page_not_found(e):

@@ -1,5 +1,6 @@
 import object
 import fileType
+import dynamoDB
 
 class Document(object.Object):
     table_name = "document"
@@ -18,3 +19,12 @@ class Document(object.Object):
         self.password = password,
         self.description = description,
         self.notes = notes
+        
+
+def get_doc(doc):
+    key_info={
+        "name": doc.name,
+        "fileType": doc.fileType
+    }
+    items = dynamoDB.get_item(doc.table_name, key_info)
+    return items
