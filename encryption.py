@@ -1,5 +1,9 @@
 from cryptography.fernet import Fernet
 
+def getNewKey():
+    key = Fernet.generate_key()
+    return key
+    
 def encrypt(key, item):
     f = Fernet(key)
     encrypted = f.encrypt( item.encode())

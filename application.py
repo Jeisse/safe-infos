@@ -23,7 +23,6 @@ load_dotenv(find_dotenv())
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env-sample")
 load_dotenv(dotenv_path)
 application.secret_key = os.getenv('APP_KEY')
-UPLOAD_FOLDER = "uploads"
 BUCKET = "testbucketjeisse"
 
 
@@ -195,65 +194,22 @@ def saveFile():
     # save file on S3
     file = request.files['file']
     file.save(file.filename)
-    s3.upload_file(f"{file.filename}", BUCKET, 'image/jpeg')
+    s3.uploadFile(f"{file.filename}", BUCKET, 'image/jpeg')
 
-    title = request.form['docTitle']
-    notes = request.form['docNotes']
-    
-    #should be user logged
+    #user logged
     name = session['username']+"_doc"
-    doc = document.Document(name=name, title=title, notes=notes, file=file)
-
-    # get existing items to not be override when include new
-    existingItems = document.get_doc(doc)
+    document.saveFile(name, request.form['docTitle'], request.form['docNotes'], file.filename)
     
-    items = []
-    key = ""
-    if existingItems['description'] :
-        for i in existingItems['description']:
-            key = i['key'].value
-            items.append({
-                'title': i['title'],
-                'notes': i['notes'],
-                'file': i['file'],
-                'key': i['key']
-            })
-    else:        
-        key = Fernet.generate_key()
-    
-    items.append({
-        'title': encryption.encrypt(key, title),
-        'notes': encryption.encrypt(key, notes),
-        'file': file.filename,
-        'key': key
-        })  
-    
-    item = {
-        "name": name,
-        "fileType": doc.fileType,
-        "description": items
-    }
-    dynamoDB.add_item(doc.table_name, item)
-  
     return redirect(url_for("fileList"))
+    
     
 @application.route('/fileList')
 def fileList():
     doc = document.Document(session["username"]+"_doc") 
-    items = document.get_doc(doc)
-    decodedItems = []
-    if items:
-        for i in items["description"]:
-            key = i["key"] 
-            fileURL = s3.getURL(BUCKET, i["file"])
-            decodedItems.append({
-                "title": decrypt(key.value, i["title"]),
-                "fileName": i["file"],
-                "fileURL": fileURL,
-                "notes": decrypt(key.value, i["notes"])
-                })
+    decodedItems = document.getFiles(doc, BUCKET)
     
     return render_template('fileList.html', items=decodedItems) 
+
 
 @application.route('/logout')
 def logout():

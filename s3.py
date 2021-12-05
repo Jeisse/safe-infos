@@ -1,10 +1,7 @@
 import boto3
 
 
-def upload_file(file_name, bucket, contentType):
-    """
-    Function to upload a file to an S3 bucket
-    """
+def uploadFile(file_name, bucket, contentType):
     object_name = file_name
     s3_client = boto3.client('s3')
     response = s3_client.upload_file(file_name, bucket, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': contentType})
@@ -12,10 +9,7 @@ def upload_file(file_name, bucket, contentType):
     return response
 
 
-def download_file(file_name, bucket):
-    """
-    Function to download a given file from an S3 bucket
-    """
+def downloadFile(file_name, bucket):
     s3 = boto3.resource('s3')
     output = f"downloads/{file_name}"
     s3.Bucket(bucket).download_file(file_name, output)
@@ -23,10 +17,7 @@ def download_file(file_name, bucket):
     return output
 
 
-def list_files(bucket):
-    """
-    Function to list files in a given S3 bucket
-    """
+def listFiles(bucket):
     s3 = boto3.client('s3')
     contents = []
     try:
