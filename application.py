@@ -9,8 +9,8 @@ from flask import Flask, redirect, url_for, render_template, json, request
 from flask_bootstrap import Bootstrap
 from cryptography.fernet import Fernet
 
-app = Flask(__name__)
-Bootstrap(app)
+application = Flask(__name__)
+Bootstrap(application)
 
 load_dotenv(find_dotenv())
 # read the .env-sample, to load the environment variable.
@@ -18,16 +18,16 @@ dotenv_path = os.path.join(os.path.dirname(__file__), ".env-sample")
 load_dotenv(dotenv_path)
 
 
-@app.route("/")
+@application.route("/")
 def home():
     # return the home page
     return render_template("index.html")
 
-@app.route("/signup")
+@application.route("/signup")
 def signup():
     return render_template("signup.html")
 
-@app.route("/signupForm", methods=['POST'])
+@application.route("/signupForm", methods=['POST'])
 def signup_form():
   
     # gets username and password from the form
@@ -46,12 +46,12 @@ def signup_form():
     return render_template("confirmSignup.html")
 
 
-@app.route("/confirmSignUp")
+@application.route("/confirmSignUp")
 def confirm_signup():
     return render_template("confirmSignup.html")
 
 
-@app.route("/confirmSignUpForm", methods=['POST'])
+@application.route("/confirmSignUpForm", methods=['POST'])
 def confirm_signup_form():
     username = request.form['username']
     confirm_code = request.form['confirm_code']
@@ -65,12 +65,12 @@ def confirm_signup_form():
     return render_template("index.html")
 
 
-@app.route("/signin")
+@application.route("/signin")
 def signin():
     return render_template("signin.html")
 
 
-@app.route("/signinForm", methods=['POST'])
+@application.route("/signinForm", methods=['POST'])
 def signin_form():
 
     # gets username and password from the form
@@ -97,15 +97,15 @@ def signin_form():
     return render_template("home.html")
 
 
-@app.route("/logged", methods=['POST', 'GET'])
+@application.route("/logged", methods=['POST', 'GET'])
 def logged():
     return render_template("home.html")
     
-@app.route("/newFile")
+@application.route("/newFile")
 def new_file():
     return render_template("newFile.html")    
 
-@app.route("/fileForm", methods=['POST'])
+@application.route("/fileForm", methods=['POST'])
 def newFile():
     
     title = request.form["docTitle"]
@@ -155,7 +155,7 @@ def newFile():
     return redirect(url_for("docList"))
 
 
-@app.route("/docList", methods=['GET', 'POST'])
+@application.route("/docList", methods=['GET', 'POST'])
 def docList(): 
     doc = document.Document("test-Jeisse-011220211013") 
     items = get_doc(doc)
@@ -172,7 +172,7 @@ def docList():
 
 # redirect to the home page when reaching admin endpoint
 # Both redirect and url_for must be import above before recognized by compiler
-@app.route("/admin/")
+@application.route("/admin/")
 def admin():
     return redirect(url_for("user", name="admin!"))
 
@@ -198,10 +198,10 @@ def decrypt(key, item):
     # display the plaintext and the decode() method, converts it from byte to string
     return decrypted.decode()
 
-@app.errorhandler(404)
+@application.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 
 # We need to state this below due to our C9 Env
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    application.run(host='0.0.0.0', port=8080, debug=True)
