@@ -4,8 +4,10 @@ import dynamoDB
 import document
 import json
 import user
+import s3
+import encryption
 from dotenv import load_dotenv, find_dotenv
-from flask import Flask, redirect, url_for, render_template, json, request, session, flash
+from flask import Flask, redirect, url_for, render_template, json, request, session, send_file
 from flask_bootstrap import Bootstrap
 from flask_fontawesome import FontAwesome
 from werkzeug.utils import secure_filename
@@ -21,7 +23,8 @@ load_dotenv(find_dotenv())
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env-sample")
 load_dotenv(dotenv_path)
 application.secret_key = os.getenv('APP_KEY')
-application.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
+UPLOAD_FOLDER = "uploads"
+BUCKET = "testbucketjeisse"
 
 
 @application.route("/")
@@ -149,10 +152,10 @@ def newForm():
         key = Fernet.generate_key()
     
     items.append({
-        'title': encryptation(key, title),
-        'password': encryptation(key, password),
-        'description': encryptation(key, description),
-        'notes': encryptation(key, notes),
+        'title': encryption.encrypt(key,title),
+        'password': encryption.encrypt(key, password),
+        'description': encryption.encrypt(key, description),
+        'notes': encryption.encrypt(key, notes),
         'key': key
         })  
 
@@ -174,9 +177,9 @@ def docList():
     for i in items["description"]:
         key = i["key"]
         decodedItems.append({
-            "title": decrypt(key.value, i["title"]),
-            "description": decrypt(key.value, i["description"]),
-            "notes": decrypt(key.value, i["notes"])
+            "title": encryption.decrypt(key.value, i["title"]),
+            "description": encryption.decrypt(key.value, i["description"]),
+            "notes": encryption.decrypt(key.value, i["notes"])
             })
     
     return render_template('docList.html', items=decodedItems) 
@@ -188,9 +191,14 @@ def new_file():
     
 @application.route("/saveFile", methods=['SET','POST'])
 def saveFile():
+    
+    # save file on S3
+    file = request.files['file']
+    file.save(file.filename)
+    s3.upload_file(f"{file.filename}", BUCKET, 'image/jpeg')
+
     title = request.form['docTitle']
     notes = request.form['docNotes']
-    file = request.form['file1']
     
     #should be user logged
     name = session['username']+"_doc"
@@ -214,12 +222,11 @@ def saveFile():
         key = Fernet.generate_key()
     
     items.append({
-        'title': encryptation(key, title),
-        'notes': encryptation(key, notes),
-        'file': encryptation(key, file),
+        'title': encryption.encrypt(key, title),
+        'notes': encryption.encrypt(key, notes),
+        'file': file.filename,
         'key': key
         })  
-
     
     item = {
         "name": name,
@@ -227,7 +234,7 @@ def saveFile():
         "description": items
     }
     dynamoDB.add_item(doc.table_name, item)
-    uploadFile(request)
+  
     return redirect(url_for("fileList"))
     
 @application.route('/fileList')
@@ -235,13 +242,16 @@ def fileList():
     doc = document.Document(session["username"]+"_doc") 
     items = document.get_doc(doc)
     decodedItems = []
-    for i in items["description"]:
-        key = i["key"]
-        decodedItems.append({
-            "title": decrypt(key.value, i["title"]),
-            "file": decrypt(key.value, i["file"]),
-            "notes": decrypt(key.value, i["notes"])
-            })
+    if items:
+        for i in items["description"]:
+            key = i["key"] 
+            fileURL = s3.getURL(BUCKET, i["file"])
+            decodedItems.append({
+                "title": decrypt(key.value, i["title"]),
+                "fileName": i["file"],
+                "fileURL": fileURL,
+                "notes": decrypt(key.value, i["notes"])
+                })
     
     return render_template('fileList.html', items=decodedItems) 
 
@@ -256,39 +266,6 @@ def logout():
 @application.route("/admin/")
 def admin():
     return redirect(url_for("user", name="admin!"))
-
-
-def encryptation(key, item):
-    f = Fernet(key)
-    encrypted = f.encrypt( item.encode())
-    return encrypted
-    
-def decrypt(key, item):
-    f = Fernet(key)
-    print(item.value)
-    # encrypted = b"...encrypted bytes..."
-    decrypted = f.decrypt(item.value)
-    # display the plaintext and the decode() method, converts it from byte to string
-    return decrypted.decode()
-
-def uploadFile(request):
-    # check if the post request has the file part
-    if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    file = request.files['file1']
-    # if user does not select file, browser also
-    # submit a empty part without filename
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in os.getenv('ALLOWED_EXTENSIONS')
 
 @application.errorhandler(404)
 def page_not_found(e):

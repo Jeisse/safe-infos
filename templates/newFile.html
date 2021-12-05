@@ -54,7 +54,7 @@
             <div class="col-md-9 central">
                
                 <div class="row">
-                    <form action="/saveFile" method="post" >
+                    <form action="/saveFile" method="post" enctype=multipart/form-data>
                         <div class="form-group col-md-8">
                             <label for="docTitle">Title*</label>
                             <input class="form-control" id="docTitle" name="docTitle" placeholder="Any title, something to identify this file">
@@ -65,7 +65,7 @@
                             <textarea class="form-control col-md-9" id="docNotes" rows="4" name="docNotes"></textarea>
                         </div>
                         <div class="form-group col-md-9 custom-file">
-                          <input type="file" class="custom-file-input" id="customFile" name="file1">
+                          <input type="file" class="custom-file-input" id="customFile" name=file>
                           <label class="custom-file-label" for="customFile" >Choose file</label>
                           
                           <br>
