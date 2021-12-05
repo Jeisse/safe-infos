@@ -5,18 +5,23 @@ import document
 import json
 import user
 from dotenv import load_dotenv, find_dotenv
-from flask import Flask, redirect, url_for, render_template, json, request, session
+from flask import Flask, redirect, url_for, render_template, json, request, session, flash
 from flask_bootstrap import Bootstrap
+from flask_fontawesome import FontAwesome
+from werkzeug.utils import secure_filename
 from cryptography.fernet import Fernet
+
 
 application = Flask(__name__)
 Bootstrap(application)
+FontAwesome(application)
 
 load_dotenv(find_dotenv())
 # read the .env-sample, to load the environment variable.
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env-sample")
 load_dotenv(dotenv_path)
 application.secret_key = os.getenv('APP_KEY')
+application.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
 
 
 @application.route("/")
@@ -105,13 +110,14 @@ def logged():
         return render_template("home.html")
         
     return  render_template("index.html")
-    
-@application.route("/newFile")
-def new_file():
-    return render_template("newFile.html")    
 
-@application.route("/fileForm", methods=['POST'])
-def newFile():
+    
+@application.route("/form")
+def form():
+    return render_template("form.html")    
+
+@application.route("/newForm", methods=['POST'])
+def newForm():
     
     title = request.form["docTitle"]
     password = request.form["docPassword"]
@@ -129,7 +135,7 @@ def newFile():
     
     items = []
     key = ""
-    if existingItems != [] :
+    if existingItems['description'] :
         for i in existingItems['description']:
             key = i['key'].value
             items.append({
@@ -173,7 +179,71 @@ def docList():
             "notes": decrypt(key.value, i["notes"])
             })
     
-    return render_template('doc.html', items=decodedItems) 
+    return render_template('docList.html', items=decodedItems) 
+
+
+@application.route("/newFile")
+def new_file():
+    return render_template("newFile.html")  
+    
+@application.route("/saveFile", methods=['SET','POST'])
+def saveFile():
+    title = request.form['docTitle']
+    notes = request.form['docNotes']
+    file = request.form['file1']
+    
+    #should be user logged
+    name = session['username']+"_doc"
+    doc = document.Document(name=name, title=title, notes=notes, file=file)
+
+    # get existing items to not be override when include new
+    existingItems = document.get_doc(doc)
+    
+    items = []
+    key = ""
+    if existingItems['description'] :
+        for i in existingItems['description']:
+            key = i['key'].value
+            items.append({
+                'title': i['title'],
+                'notes': i['notes'],
+                'file': i['file'],
+                'key': i['key']
+            })
+    else:        
+        key = Fernet.generate_key()
+    
+    items.append({
+        'title': encryptation(key, title),
+        'notes': encryptation(key, notes),
+        'file': encryptation(key, file),
+        'key': key
+        })  
+
+    
+    item = {
+        "name": name,
+        "fileType": doc.fileType,
+        "description": items
+    }
+    dynamoDB.add_item(doc.table_name, item)
+    uploadFile(request)
+    return redirect(url_for("fileList"))
+    
+@application.route('/fileList')
+def fileList():
+    doc = document.Document(session["username"]+"_doc") 
+    items = document.get_doc(doc)
+    decodedItems = []
+    for i in items["description"]:
+        key = i["key"]
+        decodedItems.append({
+            "title": decrypt(key.value, i["title"]),
+            "file": decrypt(key.value, i["file"]),
+            "notes": decrypt(key.value, i["notes"])
+            })
+    
+    return render_template('fileList.html', items=decodedItems) 
 
 @application.route('/logout')
 def logout():
@@ -201,6 +271,24 @@ def decrypt(key, item):
     # display the plaintext and the decode() method, converts it from byte to string
     return decrypted.decode()
 
+def uploadFile(request):
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+    file = request.files['file1']
+    # if user does not select file, browser also
+    # submit a empty part without filename
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in os.getenv('ALLOWED_EXTENSIONS')
 
 @application.errorhandler(404)
 def page_not_found(e):

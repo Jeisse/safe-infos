@@ -11,14 +11,16 @@ class Document(object.Object):
     password = ''
     description = ''
     notes = ''
+    file = ''
     
 
-    def __init__(self, name='', title="", password="", description="", notes=""):
+    def __init__(self, name='', title="", password="", description="", notes="",file =""):
         self.name = name
         self.title = title,
         self.password = password,
         self.description = description,
         self.notes = notes
+        self.file = file
         
 
 def get_doc(doc):

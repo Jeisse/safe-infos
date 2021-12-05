@@ -3,20 +3,14 @@
 {% block title %}Home page to Safe-Info{% endblock %}
 
 {% block content %}
+    <script src="../static/js/treeview.js"></script>
     <style>
-        .jumbotron {
-            width: 90%;
-            margin: auto;
-            margin-top: 30px;
-        }
         .main {
             width: 90%;
             margin: auto;
             margin-top: 30px;
         }
-        .central {
-            background-color: #f7f7f9;
-        }
+        
         .sidebar {
             z-index: 1000;
             display: block;
@@ -30,7 +24,7 @@
 
     <main class="text-center main">
         <div class="page-header">
-            <h1>Safe-infos <small>New Form</small></h1>
+            <h1>Safe-infos <small>See your file details</small></h1>
         </div>
 
         <div class="row">
@@ -52,27 +46,28 @@
                 </div>
             </div>
             <div class="col-md-9 central">
-               
-                <div class="row">
-                    <form action="/saveFile" method="post" >
-                        <div class="form-group col-md-8">
-                            <label for="docTitle">Title*</label>
-                            <input class="form-control" id="docTitle" name="docTitle" placeholder="Any title, something to identify this file">
-                        </div>
-                    
-                        <div class="form-group col-md-9">
-                            <label for="docNotes">Notes</label>
-                            <textarea class="form-control col-md-9" id="docNotes" rows="4" name="docNotes"></textarea>
-                        </div>
-                        <div class="form-group col-md-9 custom-file">
-                          <input type="file" class="custom-file-input" id="customFile" name="file1">
-                          <label class="custom-file-label" for="customFile" >Choose file</label>
-                          
-                          <br>
-                            <button class="w-100 btn btn-lg btn-primary pull-left" type="submit">Save</button>
-                        </div>
-                    </form>
-                </div>
+             
+               <table class="table table-hover text-left">
+                   <thead>
+                       <tr>
+                           <th scope="col">#</th>
+                           <th scope="col">Title</th>
+                           <th scope="col">Notes</th>
+                           <th scope="col">File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in items %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ i['title'] }}</td>
+                            <td>{{ i['notes'] }}</td>
+                            <td><img src="{{ i['file'] }}" alt="Italian Trulli">
+                                </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 
