@@ -6,6 +6,7 @@ import json
 import user
 import s3
 import encryption
+from media_identifier import identifier
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, redirect, url_for, render_template, json, request, session, send_file
 from flask_bootstrap import Bootstrap
@@ -17,13 +18,14 @@ from cryptography.fernet import Fernet
 application = Flask(__name__)
 Bootstrap(application)
 FontAwesome(application)
+imt = identifier.MediaType()
 
 load_dotenv(find_dotenv())
 # read the .env-sample, to load the environment variable.
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env-sample")
 load_dotenv(dotenv_path)
 application.secret_key = os.getenv('APP_KEY')
-BUCKET = "testbucketjeisse"
+
 
 
 @application.route("/")
@@ -169,7 +171,8 @@ def saveFile():
     # save file on S3
     file = request.files['file']
     file.save(file.filename)
-    s3.uploadFile(f"{file.filename}", BUCKET, 'image/jpeg')
+    fileType = imt.get_type(file.filename)
+    s3.uploadFile(f"{file.filename}", os.getenv('BUCKET'), fileType["mime"])
 
     #user logged
     name = session['username']+"_doc"
@@ -181,7 +184,7 @@ def saveFile():
 @application.route('/fileList')
 def fileList():
     doc = document.Document(session["username"]+"_doc") 
-    decodedItems = document.getDocuments(doc, BUCKET)
+    decodedItems = document.getDocuments(doc, os.getenv('BUCKET'))
     
     return render_template('fileList.html', items=decodedItems) 
 
