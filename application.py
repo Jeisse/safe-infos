@@ -171,15 +171,7 @@ def newForm():
 @application.route("/docList", methods=['GET', 'POST'])
 def docList(): 
     doc = document.Document(session["username"]+"_file") 
-    items = document.get_doc(doc)
-    decodedItems = []
-    for i in items["description"]:
-        key = i["key"]
-        decodedItems.append({
-            "title": encryption.decrypt(key.value, i["title"]),
-            "description": encryption.decrypt(key.value, i["description"]),
-            "notes": encryption.decrypt(key.value, i["notes"])
-            })
+    decodedItems = document.getDocuments(doc)
     
     return render_template('docList.html', items=decodedItems) 
 
@@ -190,7 +182,6 @@ def new_file():
     
 @application.route("/saveFile", methods=['SET','POST'])
 def saveFile():
-    
     # save file on S3
     file = request.files['file']
     file.save(file.filename)
@@ -206,7 +197,7 @@ def saveFile():
 @application.route('/fileList')
 def fileList():
     doc = document.Document(session["username"]+"_doc") 
-    decodedItems = document.getFiles(doc, BUCKET)
+    decodedItems = document.getDocuments(doc, BUCKET)
     
     return render_template('fileList.html', items=decodedItems) 
 

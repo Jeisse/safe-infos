@@ -67,19 +67,26 @@ def saveFile(name, title, notes, file):
     }
     dynamoDB.add_item(doc.table_name, item)
     
-def getFiles(doc, bucket):
+def getDocuments(doc, bucket=""):
     items = get_doc(doc)
     decodedItems = []
     if items:
         for i in items["description"]:
             key = i["key"] 
-            fileURL = s3.getURL(bucket, i["file"])
-            decodedItems.append({
-                "title": encryption.decrypt(key.value, i["title"]),
-                "fileName": i["file"],
-                "fileURL": fileURL,
-                "notes": encryption.decrypt(key.value, i["notes"])
-                })
+            if "_doc" in doc.name:
+                fileURL = s3.getURL(bucket, i["file"])
+                decodedItems.append({
+                    "title": encryption.decrypt(key.value, i["title"]),
+                    "fileName": i["file"],
+                    "fileURL": fileURL,
+                    "notes": encryption.decrypt(key.value, i["notes"])
+                    })
+            elif "_file" in doc.name:
+                decodedItems.append({
+                    "title": encryption.decrypt(key.value, i["title"]),
+                    "description": encryption.decrypt(key.value, i["description"]),
+                    "notes": encryption.decrypt(key.value, i["notes"])
+                    })
     
     return decodedItems
     
