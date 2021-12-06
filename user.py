@@ -2,11 +2,11 @@ import boto3
 
 class User():
     username = ""
-    email = ""
+    password = ""
     
-    def __init__(self, username, email):
+    def __init__(self, username, password):
         self.username = username
-        self.email = email
+        self.password = password
         
     
 
