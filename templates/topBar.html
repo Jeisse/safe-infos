@@ -25,7 +25,11 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">
+                {% if session['username'] %}
+                    <a class="navbar-brand" href="/logged">
+                {% else %}
+                    <a class="navbar-brand" href="/">
+                {% endif %}
                     <img alt="Brand" width="40" height="40" src="../static/img/safe-infos.png">
                 </a>
             </div>
