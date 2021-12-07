@@ -93,7 +93,11 @@ def signin_form():
 @application.route("/logged", methods=['POST', 'GET'])
 def logged():
     if session['username'] :
-        return render_template("home.html")
+        fileDoc = document.Document(session["username"]+"_file") 
+        fileItems = document.getDocuments(fileDoc)
+        doc = document.Document(session["username"]+"_doc") 
+        docItems = document.getDocuments(doc, os.getenv('BUCKET'))
+        return render_template("home.html", fileItems=fileItems, docItems=docItems)
         
     return  render_template("index.html")
 

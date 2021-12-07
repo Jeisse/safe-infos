@@ -27,6 +27,16 @@
             border-right: 5px solid #ffffff;
         }
     </style>
+    <script>
+        function myFunction() {
+          var x = document.getElementById("docPassword");
+          if (x.type === "password") {
+            x.type = "text";
+          } else {
+            x.type = "password";
+          }
+        }
+    </script>
 
     <main class="text-center main">
         <div class="page-header">
@@ -62,6 +72,9 @@
                         <div class="form-group col-md-8">
                             <label for="docPassword">Password</label>
                             <input type="password" class="form-control col-md-6" id="docPassword" name="docPassword" placeholder="Password">
+                        
+                            <br/>
+                            <input type="checkbox" onclick="myFunction()">Show Password 
                         </div>
                         <div class="form-group col-md-8">
                             <label for="docDescription">Description</label>

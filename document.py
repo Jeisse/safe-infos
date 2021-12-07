@@ -4,6 +4,7 @@ import dynamoDB
 import encryption
 import s3
 from cryptography.fernet import Fernet
+from media_identifier import identifier
 
 
 class Document(object.Object):
@@ -38,6 +39,7 @@ def get_doc(doc):
     
 def saveFile(name, title, notes, file="", password="", description=""):
     doc = Document(name)
+    imt = identifier.MediaType()
     # get existing items to not be override when include new
     existingItems = get_doc(doc)
     print(existingItems['description'])
@@ -51,6 +53,7 @@ def saveFile(name, title, notes, file="", password="", description=""):
                     'title': i['title'],
                     'notes': i['notes'],
                     'file': i['file'],
+                    'fileType': i['fileType'],
                     'key': i['key']
                 })
             elif "_file" in name:
@@ -64,11 +67,14 @@ def saveFile(name, title, notes, file="", password="", description=""):
     else:        
         key = encryption.getNewKey()
     
+    fileType = imt.get_type(file)
+    
     if "_doc" in name:
         items.append({
             'title': encryption.encrypt(key, title),
             'notes': encryption.encrypt(key, notes),
-            'file': file,
+            'file': encryption.encrypt(key, file),
+            'fileType': fileType["extension"],
             'key': key
             }) 
     elif "_file" in name:
@@ -94,11 +100,13 @@ def getDocuments(doc, bucket=""):
         for i in items["description"]:
             key = i["key"] 
             if "_doc" in doc.name:
-                fileURL = s3.getURL(bucket, i["file"])
+                dec = encryption.decrypt(key.value, i["file"])
+                fileURL = s3.getURL(bucket, dec)
                 decodedItems.append({
                     "title": encryption.decrypt(key.value, i["title"]),
-                    "fileName": i["file"],
+                    "fileName": encryption.decrypt(key.value, i["file"]),
                     "fileURL": fileURL,
+                    "fileType": i["fileType"],
                     "notes": encryption.decrypt(key.value, i["notes"])
                     })
             elif "_file" in doc.name:
