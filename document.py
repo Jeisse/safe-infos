@@ -3,6 +3,8 @@ import fileType
 import dynamoDB
 import encryption
 import s3
+from cryptography.fernet import Fernet
+
 
 class Document(object.Object):
     table_name = "document"
@@ -34,7 +36,7 @@ def get_doc(doc):
     return items
     
     
-def saveFile(name, title, notes, file):
+def saveFile(name, title, notes, file="", password="", description=""):
     doc = Document(name)
     # get existing items to not be override when include new
     existingItems = get_doc(doc)
@@ -44,21 +46,39 @@ def saveFile(name, title, notes, file):
     if existingItems['description'] :
         for i in existingItems['description']:
             key = i['key'].value
-            items.append({
-                'title': i['title'],
-                'notes': i['notes'],
-                'file': i['file'],
-                'key': i['key']
-            })
+            if "_doc" in name:
+                items.append({
+                    'title': i['title'],
+                    'notes': i['notes'],
+                    'file': i['file'],
+                    'key': i['key']
+                })
+            elif "_file" in name:
+                items.append({
+                    'title': i['title'],
+                    'password': i['password'],
+                    'description': i['description'],
+                    'notes': i['notes'],
+                    'key': i['key']
+                })
     else:        
         key = encryption.getNewKey()
     
-    items.append({
-        'title': encryption.encrypt(key, title),
-        'notes': encryption.encrypt(key, notes),
-        'file': file,
-        'key': key
-        })  
+    if "_doc" in name:
+        items.append({
+            'title': encryption.encrypt(key, title),
+            'notes': encryption.encrypt(key, notes),
+            'file': file,
+            'key': key
+            }) 
+    elif "_file" in name:
+        items.append({
+            'title': encryption.encrypt(key,title),
+            'password': encryption.encrypt(key, password),
+            'description': encryption.encrypt(key, description),
+            'notes': encryption.encrypt(key, notes),
+            'key': key
+        })      
     
     item = {
         "name": name,
@@ -89,5 +109,3 @@ def getDocuments(doc, bucket=""):
                     })
     
     return decodedItems
-    
-  

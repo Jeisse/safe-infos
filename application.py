@@ -11,8 +11,6 @@ from dotenv import load_dotenv, find_dotenv
 from flask import Flask, redirect, url_for, render_template, json, request, session, send_file
 from flask_bootstrap import Bootstrap
 from flask_fontawesome import FontAwesome
-from werkzeug.utils import secure_filename
-from cryptography.fernet import Fernet
 
 
 application = Flask(__name__)
@@ -111,46 +109,10 @@ def newForm():
     password = request.form["docPassword"]
     description = request.form["docDescription"]
     notes = request.form["docNotes"]
-    
     #should be user logged
     name = session['username']+"_file"
-    doc = document.Document(name, title, password, description, notes)
-    # for the first time so the DB is created
-#   dynamoDB.initiate_db(doc)
     
-    # get existing items to not be override when include new
-    existingItems = document.get_doc(doc)
-    
-    items = []
-    key = ""
-    if existingItems['description'] :
-        for i in existingItems['description']:
-            key = i['key'].value
-            items.append({
-                'title': i['title'],
-                'password': i['password'],
-                'description': i['description'],
-                'notes': i['notes'],
-                'key': i['key']
-            })
-    else:        
-        key = Fernet.generate_key()
-    
-    items.append({
-        'title': encryption.encrypt(key,title),
-        'password': encryption.encrypt(key, password),
-        'description': encryption.encrypt(key, description),
-        'notes': encryption.encrypt(key, notes),
-        'key': key
-        })  
-
-    
-    item = {
-        "name": name,
-        "fileType": doc.fileType,
-        "description": items
-    }
-    dynamoDB.add_item(doc.table_name, item)
+    document.saveFile(name, title, notes, "", password, description)
     return redirect(url_for("docList"))
 
 
