@@ -1,4 +1,3 @@
-import object
 import fileType
 import dynamoDB
 import encryption
@@ -7,7 +6,7 @@ from cryptography.fernet import Fernet
 from media_identifier import identifier
 
 
-class Document(object.Object):
+class Document():
     table_name = "document"
     attribute_key = ["name", "fileType"]
     fileType = fileType.FileType.text
@@ -37,15 +36,15 @@ def get_doc(doc):
     return items
     
     
-def saveFile(name, title, notes, file="", password="", description=""):
+def save_file(name, title, notes, file="", password="", description=""):
     doc = Document(name)
     imt = identifier.MediaType()
     # get existing items to not be override when include new
     existingItems = get_doc(doc)
-    print(existingItems['description'])
+    
     items = []
     key = ""
-    if existingItems['description'] :
+    if 'description' in existingItems:
         for i in existingItems['description']:
             key = i['key'].value
             if "_doc" in name:
@@ -69,7 +68,7 @@ def saveFile(name, title, notes, file="", password="", description=""):
     
     fileType = imt.get_type(file)
     
-    if "_doc" in name:
+    if "_file" in name:
         items.append({
             'title': encryption.encrypt(key, title),
             'notes': encryption.encrypt(key, notes),
@@ -77,7 +76,7 @@ def saveFile(name, title, notes, file="", password="", description=""):
             'fileType': fileType["extension"],
             'key': key
             }) 
-    elif "_file" in name:
+    elif "_doc" in name:
         items.append({
             'title': encryption.encrypt(key,title),
             'password': encryption.encrypt(key, password),
@@ -99,7 +98,7 @@ def getDocuments(doc, bucket=""):
     if items:
         for i in items["description"]:
             key = i["key"] 
-            if "_doc" in doc.name:
+            if "_file" in doc.name:
                 dec = encryption.decrypt(key.value, i["file"])
                 fileURL = s3.getURL(bucket, dec)
                 decodedItems.append({
@@ -109,7 +108,7 @@ def getDocuments(doc, bucket=""):
                     "fileType": i["fileType"],
                     "notes": encryption.decrypt(key.value, i["notes"])
                     })
-            elif "_file" in doc.name:
+            elif "_doc" in doc.name:
                 decodedItems.append({
                     "title": encryption.decrypt(key.value, i["title"]),
                     "description": encryption.decrypt(key.value, i["description"]),

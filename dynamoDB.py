@@ -1,7 +1,6 @@
 import logging
 import boto3
 import util
-import object
 from botocore.exceptions import ClientError
 
 class DynamoDB:
@@ -41,7 +40,12 @@ class DynamoDB:
             dynamodb_resource = boto3.resource("dynamodb", region_name=region)
             table = dynamodb_resource.Table(table_name)
             response = table.get_item(Key=key)
-            item = response['Item']
+            print(response)
+            if 'Item' in response:
+                item = response['Item']
+            else:
+                item = ""
+            
             # print(item)
             return item
         

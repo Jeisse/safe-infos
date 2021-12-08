@@ -1,11 +1,8 @@
 import os
 import boto3
-import dynamoDB
 import document
-import json
 import user
 import s3
-import encryption
 from media_identifier import identifier
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, redirect, url_for, render_template, json, request, session, send_file
@@ -70,7 +67,7 @@ def confirm_signup_form():
         Username=username,
         ConfirmationCode=confirm_code
     )
-    return render_template("index.html")
+    return render_template("signin.html")
 
 
 @application.route("/signin")
@@ -94,9 +91,9 @@ def signin_form():
 def logged():
     if session['username'] :
         fileDoc = document.Document(session["username"]+"_file") 
-        fileItems = document.getDocuments(fileDoc)
+        fileItems = document.getDocuments(fileDoc, os.getenv('BUCKET'))
         doc = document.Document(session["username"]+"_doc") 
-        docItems = document.getDocuments(doc, os.getenv('BUCKET'))
+        docItems = document.getDocuments(doc)
         return render_template("home.html", fileItems=fileItems, docItems=docItems)
         
     return  render_template("index.html")
@@ -114,15 +111,15 @@ def newForm():
     description = request.form["docDescription"]
     notes = request.form["docNotes"]
     #should be user logged
-    name = session['username']+"_file"
+    name = session['username']+"_doc"
     
-    document.saveFile(name, title, notes, "", password, description)
+    document.save_file(name, title, notes, "", password, description)
     return redirect(url_for("docList"))
 
 
 @application.route("/docList", methods=['GET', 'POST'])
 def docList(): 
-    doc = document.Document(session["username"]+"_file") 
+    doc = document.Document(session["username"]+"_doc") 
     decodedItems = document.getDocuments(doc)
     
     return render_template('docList.html', items=decodedItems) 
@@ -141,15 +138,15 @@ def saveFile():
     s3.uploadFile(f"{file.filename}", os.getenv('BUCKET'), fileType["mime"])
 
     #user logged
-    name = session['username']+"_doc"
-    document.saveFile(name, request.form['docTitle'], request.form['docNotes'], file.filename)
+    name = session['username']+"_file"
+    document.save_file(name, request.form['docTitle'], request.form['docNotes'], file.filename)
     
     return redirect(url_for("fileList"))
     
     
 @application.route('/fileList')
 def fileList():
-    doc = document.Document(session["username"]+"_doc") 
+    doc = document.Document(session["username"]+"_file") 
     decodedItems = document.getDocuments(doc, os.getenv('BUCKET'))
     
     return render_template('fileList.html', items=decodedItems) 
