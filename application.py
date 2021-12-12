@@ -151,6 +151,12 @@ def fileList():
     
     return render_template('fileList.html', items=decodedItems) 
 
+@application.route("/download/<filename>", methods=['GET'])
+def download(filename):
+    if request.method == 'GET':
+        output = s3.downloadFile(filename, os.getenv('BUCKET'))
+       
+        return send_file(output, as_attachment=True)
 
 @application.route('/logout')
 def logout():

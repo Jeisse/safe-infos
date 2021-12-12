@@ -47,7 +47,7 @@ def save_file(name, title, notes, file="", password="", description=""):
     if 'description' in existingItems:
         for i in existingItems['description']:
             key = i['key'].value
-            if "_doc" in name:
+            if "_file" in name:
                 items.append({
                     'title': i['title'],
                     'notes': i['notes'],
@@ -55,7 +55,7 @@ def save_file(name, title, notes, file="", password="", description=""):
                     'fileType': i['fileType'],
                     'key': i['key']
                 })
-            elif "_file" in name:
+            elif "_doc" in name:
                 items.append({
                     'title': i['title'],
                     'password': i['password'],

@@ -10,8 +10,9 @@ def uploadFile(file_name, bucket, contentType):
 
 
 def downloadFile(file_name, bucket):
+    print(file_name)
     s3 = boto3.resource('s3')
-    output = f"downloads/{file_name}"
+    output = f"{file_name}"
     s3.Bucket(bucket).download_file(file_name, output)
 
     return output

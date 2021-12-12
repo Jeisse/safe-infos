@@ -53,6 +53,9 @@
                            <th scope="col">Title</th>
                            <th scope="col">Notes</th>
                            <th scope="col">File</th>
+                           <th scope="col"></th>
+                           <th scope="col"></th>
+                           <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,8 +64,10 @@
                             <th scope="row">{{ loop.index }}</th>
                             <td>{{ i['title'] }}</td>
                             <td>{{ i['notes'] }}</td>
-                            <td> <img class="thumbnail" src="{{ i['fileURL'] }}" alt="{{ i['fileName'] }}" style="width:50px;height:50px;">
-                                </td>
+                            <td> <img class="thumbnail" src="{{ i['fileURL'] }}" alt="{{ i['fileName'] }}" style="width:50px;height:50px;"></td>
+                            <td><a href="/edit/{{i['id'] }}"><span class="fas fa-edit"></span></a></td>
+                            <td><a href="/download/{{i['fileName'] }}"><span class="fas fa-download"></span></a></td>
+                            <td><a href="/delete/{{i['id']}}"><span class="fas fa-trash"></span></a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
